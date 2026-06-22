@@ -46,37 +46,19 @@ public class ToleranceJudgmentService {
             rule = ruleMapper.matchRule(DEFAULT_CATEGORY, DEFAULT_WEIGHING_TYPE, claimedWeightG);
         }
         if (rule == null) {
-            JudgmentResult fallback = new JudgmentResult();
-            fallback.setShortageG(shortage);
-            fallback.setToleranceValueG(0);
-            fallback.setSevereThresholdG(0);
-            fallback.setResult(shortage > 0 ? JudgmentResult.SHORTAGE : JudgmentResult.PASS);
-            fallback.setBasis("无匹配允差规则，按零允差判定：短缺" + shortage + "克");
-            fallback.setRuleSnapshotJson(null);
-            fallback.setRuleId(null);
-            return fallback;
+            return buildFallback(shortage);
         }
+        return doJudge(rule, claimedWeightG, actualWeightG, true);
+    }
 
-        int toleranceValueG = computeTolerance(rule, claimedWeightG);
-        int severeThresholdG = computeSevereThreshold(rule, toleranceValueG);
-        String result;
-        if (shortage <= toleranceValueG) {
-            result = JudgmentResult.PASS;
-        } else if (shortage <= severeThresholdG) {
-            result = JudgmentResult.SHORTAGE;
-        } else {
-            result = JudgmentResult.SEVERE_SHORTAGE;
+    public JudgmentResult judgeByRule(ToleranceRule rule, int claimedWeightG, int actualWeightG) {
+        if (rule == null) {
+            if (actualWeightG > claimedWeightG) {
+                throw ApiException.badRequest("实测重量大于计价重量，请核对录入");
+            }
+            return buildFallback(claimedWeightG - actualWeightG);
         }
-
-        JudgmentResult jr = new JudgmentResult();
-        jr.setResult(result);
-        jr.setShortageG(shortage);
-        jr.setToleranceValueG(toleranceValueG);
-        jr.setSevereThresholdG(severeThresholdG);
-        jr.setBasis(buildBasisText(rule, claimedWeightG, shortage, toleranceValueG, severeThresholdG, result));
-        jr.setRuleSnapshotJson(serializeRuleSnapshot(rule));
-        jr.setRuleId(rule.getId());
-        return jr;
+        return doJudge(rule, claimedWeightG, actualWeightG, true);
     }
 
     public JudgmentResult judgeBySnapshot(String ruleSnapshotJson, int claimedWeightG, int actualWeightG) {
@@ -86,18 +68,30 @@ public class ToleranceJudgmentService {
         int shortage = claimedWeightG - actualWeightG;
 
         if (ruleSnapshotJson == null || ruleSnapshotJson.isBlank()) {
-            JudgmentResult fallback = new JudgmentResult();
-            fallback.setShortageG(shortage);
-            fallback.setToleranceValueG(0);
-            fallback.setSevereThresholdG(0);
-            fallback.setResult(shortage > 0 ? JudgmentResult.SHORTAGE : JudgmentResult.PASS);
-            fallback.setBasis("无匹配允差规则，按零允差判定：短缺" + shortage + "克");
-            fallback.setRuleSnapshotJson(null);
-            fallback.setRuleId(null);
-            return fallback;
+            return buildFallback(shortage);
         }
-
         ToleranceRule rule = deserializeRuleSnapshot(ruleSnapshotJson);
+        return doJudge(rule, claimedWeightG, actualWeightG, false);
+    }
+
+    private JudgmentResult buildFallback(int shortage) {
+        JudgmentResult fallback = new JudgmentResult();
+        fallback.setShortageG(shortage);
+        fallback.setToleranceValueG(0);
+        fallback.setSevereThresholdG(0);
+        fallback.setResult(shortage > 0 ? JudgmentResult.SHORTAGE : JudgmentResult.PASS);
+        fallback.setBasis("无匹配允差规则，按零允差判定：短缺" + shortage + "克");
+        fallback.setRuleSnapshotJson(null);
+        fallback.setRuleId(null);
+        return fallback;
+    }
+
+    private JudgmentResult doJudge(ToleranceRule rule, int claimedWeightG, int actualWeightG,
+                                   boolean generateNewSnapshot) {
+        if (actualWeightG > claimedWeightG) {
+            throw ApiException.badRequest("实测重量大于计价重量，请核对录入");
+        }
+        int shortage = claimedWeightG - actualWeightG;
         int toleranceValueG = computeTolerance(rule, claimedWeightG);
         int severeThresholdG = computeSevereThreshold(rule, toleranceValueG);
         String result;
@@ -115,7 +109,9 @@ public class ToleranceJudgmentService {
         jr.setToleranceValueG(toleranceValueG);
         jr.setSevereThresholdG(severeThresholdG);
         jr.setBasis(buildBasisText(rule, claimedWeightG, shortage, toleranceValueG, severeThresholdG, result));
-        jr.setRuleSnapshotJson(ruleSnapshotJson);
+        jr.setRuleSnapshotJson(generateNewSnapshot
+                ? serializeRuleSnapshot(rule)
+                : serializeRuleSnapshot(rule));
         jr.setRuleId(rule.getId());
         return jr;
     }

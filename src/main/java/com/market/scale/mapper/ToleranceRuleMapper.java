@@ -36,12 +36,28 @@ public interface ToleranceRuleMapper {
                           @Param("weighingType") String weighingType,
                           @Param("weight") int weight);
 
-    @Insert("INSERT INTO tolerance_rules(category, weighing_type, min_weight_g, max_weight_g, tolerance_mode, tolerance_percent, tolerance_fixed_g, severe_multiplier, description, enabled, version) " +
-            "VALUES(#{category}, #{weighingType}, #{minWeightG}, #{maxWeightG}, #{toleranceMode}, #{tolerancePercent}, #{toleranceFixedG}, #{severeMultiplier}, #{description}, #{enabled}, 0)")
+    @Insert("<script>" +
+            "INSERT INTO tolerance_rules(category, weighing_type, min_weight_g, max_weight_g, tolerance_mode, tolerance_percent, tolerance_fixed_g, severe_multiplier, description, enabled, version) " +
+            "VALUES(#{category}, #{weighingType}, #{minWeightG}, " +
+            "<choose><when test='maxWeightG != null'>#{maxWeightG}</when><otherwise>NULL</otherwise></choose>, " +
+            "#{toleranceMode}, " +
+            "<choose><when test='tolerancePercent != null'>#{tolerancePercent}</when><otherwise>NULL</otherwise></choose>, " +
+            "<choose><when test='toleranceFixedG != null'>#{toleranceFixedG}</when><otherwise>NULL</otherwise></choose>, " +
+            "#{severeMultiplier}, #{description}, #{enabled}, 0)" +
+            "</script>")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(ToleranceRule rule);
 
-    @Update("UPDATE tolerance_rules SET category=#{category}, weighing_type=#{weighingType}, min_weight_g=#{minWeightG}, max_weight_g=#{maxWeightG}, tolerance_mode=#{toleranceMode}, tolerance_percent=#{tolerancePercent}, tolerance_fixed_g=#{toleranceFixedG}, severe_multiplier=#{severeMultiplier}, description=#{description}, enabled=#{enabled}, version=version+1 WHERE id=#{id} AND version=#{version}")
+    @Update("<script>" +
+            "UPDATE tolerance_rules SET category=#{category}, weighing_type=#{weighingType}, " +
+            "min_weight_g=#{minWeightG}, " +
+            "max_weight_g=<choose><when test='maxWeightG != null'>#{maxWeightG}</when><otherwise>NULL</otherwise></choose>, " +
+            "tolerance_mode=#{toleranceMode}, " +
+            "tolerance_percent=<choose><when test='tolerancePercent != null'>#{tolerancePercent}</when><otherwise>NULL</otherwise></choose>, " +
+            "tolerance_fixed_g=<choose><when test='toleranceFixedG != null'>#{toleranceFixedG}</when><otherwise>NULL</otherwise></choose>, " +
+            "severe_multiplier=#{severeMultiplier}, description=#{description}, enabled=#{enabled}, version=version+1 " +
+            "WHERE id=#{id} AND version=#{version}" +
+            "</script>")
     int update(ToleranceRule rule);
 
     @Update("UPDATE tolerance_rules SET enabled = #{enabled} WHERE id = #{id}")

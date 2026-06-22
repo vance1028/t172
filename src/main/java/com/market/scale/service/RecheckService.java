@@ -87,6 +87,18 @@ public class RecheckService {
             if (!InspectionBatchService.STATUS_IN_PROGRESS.equals(batch.getStatus())) {
                 throw ApiException.badRequest("抽检批次已完成，不能新增复称记录");
             }
+            if (!batch.getMarketName().equals(stall.getMarketName())) {
+                throw ApiException.badRequest("摊位所属市场[" + stall.getMarketName()
+                        + "]与抽检批次市场[" + batch.getMarketName() + "]不一致");
+            }
+            if (batch.getCategory() != null && !batch.getCategory().isBlank()) {
+                String recordCat = (req.getCategory() != null && !req.getCategory().isBlank())
+                        ? req.getCategory() : stall.getCategory();
+                if (!batch.getCategory().equals(recordCat)) {
+                    throw ApiException.badRequest("品类不匹配：抽检批次限定品类[" + batch.getCategory()
+                            + "]，复称记录品类[" + recordCat + "]");
+                }
+            }
         }
 
         String category = (req.getCategory() != null && !req.getCategory().isBlank())

@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS tolerance_rules (
     category          VARCHAR(32) NOT NULL COMMENT '经营品类：vegetable/aquatic/meat/cooked/drygoods/other',
     weighing_type     VARCHAR(16) NOT NULL COMMENT '称量方式：loose(散称)/prepackaged(定量包装)',
     min_weight_g     INT       NOT NULL DEFAULT 0 COMMENT '适用最小重量（克），含边界',
-    max_weight_g     INT       NOT NULL COMMENT '适用最大重量（克），不含边界；NULL表示无上限',
+    max_weight_g     INT                DEFAULT NULL COMMENT '适用最大重量（克），不含边界；NULL表示无上限',
     tolerance_mode    VARCHAR(16) NOT NULL COMMENT '允差模式：percent(百分比)/fixed(固定克数)/max_both(取两者较大值)',
     tolerance_percent DECIMAL(5,2)          DEFAULT NULL COMMENT '百分比允差，如2.5表示2.5%',
     tolerance_fixed_g INT                  DEFAULT NULL COMMENT '固定克数允差（克）',
