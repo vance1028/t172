@@ -2,19 +2,22 @@ package com.market.scale.entity;
 
 import java.time.LocalDateTime;
 
-/**
- * 公平秤复称记录：消费者在市场公平秤复核购买商品的实际重量，
- * 与摊位计价重量比对，判定是否缺斤短两。
- */
 public class RecheckRecord {
     private Long id;
-    private Long stallId;          // 被复称的摊位
-    private String commodity;      // 商品名称
-    private Integer claimedWeightG; // 摊位计价重量（克）
-    private Integer actualWeightG;  // 公平秤实测重量（克）
-    private Integer shortageG;      // 短缺量（克），由计价-实测得出
-    private String result;          // pass / shortage
-    private String handledBy;       // 受理人/巡查员
+    private Long stallId;
+    private Long batchId;
+    private String commodity;
+    private String category;
+    private String weighingType;
+    private Integer claimedWeightG;
+    private Integer actualWeightG;
+    private Integer shortageG;
+    private Long toleranceRuleId;
+    private String toleranceRuleVersion;
+    private Integer toleranceValueG;
+    private String result;
+    private String judgmentBasis;
+    private String handledBy;
     private String remark;
     private LocalDateTime recheckedAt;
     private LocalDateTime createdAt;
@@ -25,8 +28,17 @@ public class RecheckRecord {
     public Long getStallId() { return stallId; }
     public void setStallId(Long stallId) { this.stallId = stallId; }
 
+    public Long getBatchId() { return batchId; }
+    public void setBatchId(Long batchId) { this.batchId = batchId; }
+
     public String getCommodity() { return commodity; }
     public void setCommodity(String commodity) { this.commodity = commodity; }
+
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+
+    public String getWeighingType() { return weighingType; }
+    public void setWeighingType(String weighingType) { this.weighingType = weighingType; }
 
     public Integer getClaimedWeightG() { return claimedWeightG; }
     public void setClaimedWeightG(Integer claimedWeightG) { this.claimedWeightG = claimedWeightG; }
@@ -37,8 +49,20 @@ public class RecheckRecord {
     public Integer getShortageG() { return shortageG; }
     public void setShortageG(Integer shortageG) { this.shortageG = shortageG; }
 
+    public Long getToleranceRuleId() { return toleranceRuleId; }
+    public void setToleranceRuleId(Long toleranceRuleId) { this.toleranceRuleId = toleranceRuleId; }
+
+    public String getToleranceRuleVersion() { return toleranceRuleVersion; }
+    public void setToleranceRuleVersion(String toleranceRuleVersion) { this.toleranceRuleVersion = toleranceRuleVersion; }
+
+    public Integer getToleranceValueG() { return toleranceValueG; }
+    public void setToleranceValueG(Integer toleranceValueG) { this.toleranceValueG = toleranceValueG; }
+
     public String getResult() { return result; }
     public void setResult(String result) { this.result = result; }
+
+    public String getJudgmentBasis() { return judgmentBasis; }
+    public void setJudgmentBasis(String judgmentBasis) { this.judgmentBasis = judgmentBasis; }
 
     public String getHandledBy() { return handledBy; }
     public void setHandledBy(String handledBy) { this.handledBy = handledBy; }

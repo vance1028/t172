@@ -7,8 +7,11 @@ import jakarta.validation.constraints.Positive;
 public class RecheckRequest {
     @NotNull(message = "摊位不能为空")
     private Long stallId;
+    private Long batchId;
     @NotBlank(message = "商品名称不能为空")
     private String commodity;
+    private String category;
+    private String weighingType;
     @NotNull(message = "计价重量不能为空")
     @Positive(message = "计价重量必须为正数")
     private Integer claimedWeightG;
@@ -21,8 +24,17 @@ public class RecheckRequest {
     public Long getStallId() { return stallId; }
     public void setStallId(Long stallId) { this.stallId = stallId; }
 
+    public Long getBatchId() { return batchId; }
+    public void setBatchId(Long batchId) { this.batchId = batchId; }
+
     public String getCommodity() { return commodity; }
     public void setCommodity(String commodity) { this.commodity = commodity; }
+
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+
+    public String getWeighingType() { return weighingType; }
+    public void setWeighingType(String weighingType) { this.weighingType = weighingType; }
 
     public Integer getClaimedWeightG() { return claimedWeightG; }
     public void setClaimedWeightG(Integer claimedWeightG) { this.claimedWeightG = claimedWeightG; }
